@@ -38,6 +38,19 @@ public class UsuarioService {
         return convertirAUsuario(entidadGuardada);
     }
 
+    // Buscamos si existe alguien con este correo
+    public Usuario loginUsuario(String correo, String contrasena) {
+        Optional<UsuarioEntity> usuarioEncontrado = repositorioUsuario.findByCorreo(correo);
+
+        // Si existe, comprobamos que la contraseña coincida
+        if (usuarioEncontrado.isPresent() && usuarioEncontrado.get().getContrasena().equals(contrasena)) {
+            return convertirAUsuario(usuarioEncontrado.get());
+        }
+
+        // Login fallido (correo no existe o contraseña incorrecta)
+        return null;
+    }
+
     // Modificar usuario existente
     public Usuario modificarUsuario(Integer id, Usuario usuarioActualizado) {
         return repositorioUsuario.findById(id).map(entidadExistente -> {

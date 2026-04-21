@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.proyecto.macrofit.usuarios.model.Usuario;
 import com.proyecto.macrofit.usuarios.service.UsuarioService;
+import com.proyecto.macrofit.usuarios.model.LoginRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,6 +39,23 @@ public class UsuarioController {
     @Operation(summary = "Registra un nuevo Usuario")
     public ResponseEntity<Usuario> registrar(@RequestBody Usuario usuario) {
         return new ResponseEntity<>(servicioUsuario.crearUsuario(usuario), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "Inicia sesión y valida credenciales")
+    public ResponseEntity<Usuario> login(@RequestBody LoginRequest credenciales) {
+
+        Usuario usuarioLogueado = servicioUsuario.loginUsuario(
+                credenciales.getCorreo(),
+                credenciales.getContrasena());
+
+        if (usuarioLogueado != null) {
+            // Devuelve un HTTP 200 (OK) y los datos del usuario
+            return new ResponseEntity<>(usuarioLogueado, HttpStatus.OK);
+        } else {
+            // Devuelve un HTTP 401 (No autorizado) si falló
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @PutMapping("/{id}")
