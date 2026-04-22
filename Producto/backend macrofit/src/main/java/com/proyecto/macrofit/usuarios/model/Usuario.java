@@ -13,7 +13,7 @@ public class Usuario {
     private float tmb_objetivo;
     private float cal_diaria;
 
-    // Getters y Setters
+
     public Integer getId_usuario() {
         return id_usuario;
     }
