@@ -73,4 +73,20 @@ public class UsuarioController {
         return eliminado ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    // El patch permite cambios parciales, no requiere todos los campos
+    @PatchMapping("/{id}/perfil")
+    @Operation(summary = "Actualiza métricas del perfil y recalcula el plan nutricional")
+    public ResponseEntity<Usuario> actualizarPerfil(
+            @PathVariable Integer id,
+            @RequestBody Usuario datosActualizados) {
+
+        Usuario actualizado = servicioUsuario.actualizarPerfil(id, datosActualizados);
+
+        if (actualizado != null) {
+            return new ResponseEntity<>(actualizado, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

@@ -51,6 +51,77 @@ public class UsuarioService {
         return null;
     }
 
+    // Actualizar perfill completo
+    public Usuario actualizarPerfil(Integer id, Usuario datosActualizados) {
+        return repositorioUsuario.findById(id).map(entidad -> {
+
+            // Verificamos cada campo: si no es nulo en la petición, lo actualizamos
+            if (datosActualizados.getNom_usuario() != null)
+                entidad.setNom_usuario(datosActualizados.getNom_usuario());
+            if (datosActualizados.getCorreo() != null)
+                entidad.setCorreo(datosActualizados.getCorreo());
+            if (datosActualizados.getPeso() > 0)
+                entidad.setPeso(datosActualizados.getPeso());
+            if (datosActualizados.getAltura() != null)
+                entidad.setAltura(datosActualizados.getAltura());
+            if (datosActualizados.getId_objetivo() != null)
+                entidad.setId_objetivo(datosActualizados.getId_objetivo());
+            if (datosActualizados.getId_nv_act() != null)
+                entidad.setId_nv_act(datosActualizados.getId_nv_act());
+
+            calcularRequerimientos(entidad);
+
+            UsuarioEntity guardado = repositorioUsuario.save(entidad);
+            return convertirAUsuario(guardado);
+        }).orElse(null);
+    }
+
+    private void calcularRequerimientos(UsuarioEntity entidad) {
+        if (entidad.getPeso() <= 0 || entidad.getAltura() == null)
+            return;
+
+        // 1. TMB Base
+        float tmbBase = (10f * entidad.getPeso()) + (6.25f * entidad.getAltura());
+        entidad.setTmb_objetivo(tmbBase);
+
+        // Factor de Actividad
+        float factor = 1.2f;
+        if (entidad.getId_nv_act() != null) {
+            switch (entidad.getId_nv_act()) {
+                case 1:
+                    factor = 1.2f;
+                    break;
+                case 2:
+                    factor = 1.375f;
+                    break;
+                case 3:
+                    factor = 1.55f;
+                    break;
+                case 4:
+                    factor = 1.725f;
+                    break;
+            }
+        }
+
+        // Ajuste por Objetivo (A cambiar segun sea necesario)
+        float ajuste = 0f;
+        if (entidad.getId_objetivo() != null) {
+            switch (entidad.getId_objetivo()) {
+                case 1:
+                    ajuste = -500f;
+                    break;
+                case 2:
+                    ajuste = 0f;
+                    break;
+                case 3:
+                    ajuste = 500f;
+                    break;
+            }
+        }
+
+        entidad.setCal_diaria((tmbBase * factor) + ajuste);
+    }
+
     // Modificar usuario existente
     public Usuario modificarUsuario(Integer id, Usuario usuarioActualizado) {
         return repositorioUsuario.findById(id).map(entidadExistente -> {
