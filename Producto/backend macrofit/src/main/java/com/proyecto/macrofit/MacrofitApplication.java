@@ -11,9 +11,8 @@ import java.net.ServerSocket;
 public class MacrofitApplication {
 
 	public static void main(String[] args) {
-		// Iniciar el túnel SSH antes de arrancar Spring Boot (solo si el puerto está
-		// libre)
-		if (isPortAvailable(3306)) {
+		// Iniciar el túnel SSH antes de arrancar Spring Boot (Revisar que puerto se esta usando)
+		if (isPortAvailable(3399)) {
 			try {
 				// Capturar variables del sistema
 				String llavePrivada = System.getenv("SSH_KEY_PATH");
@@ -32,7 +31,7 @@ public class MacrofitApplication {
 
 				session.setConfig("StrictHostKeyChecking", "no");
 				session.connect(10000);
-				session.setPortForwardingL(3306, "127.0.0.1", 3306);
+				session.setPortForwardingL(3399, "127.0.0.1", 3306);
 
 				System.out.println("¡Túnel SSH establecido con éxito! Arrancando Spring Boot...");
 
