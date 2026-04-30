@@ -1,9 +1,8 @@
-package com.proyecto.macrofit.usuarios.repository;
+package com.proyecto.macrofit.usuarios.repository; // Ajusta tu paquete
 
-import com.proyecto.macrofit.usuarios.model.Entity.NvActividadEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface NvActividadRepository extends JpaRepository<NvActividadEntity, Integer> {
+import com.proyecto.macrofit.usuarios.model.NvActividad;
+
+public interface NvActividadRepository extends JpaRepository<NvActividad, Integer> {
 }
