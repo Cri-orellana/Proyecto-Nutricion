@@ -23,6 +23,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
+import com.duoc.macrofit.nutricion.view.NutricionScreen
+
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()

@@ -59,4 +59,33 @@ class NutricionViewModel : ViewModel() {
             }
         }
     }
+
+    fun buscarRecomendacionesInteligentes(
+        dieta: String = "",
+        ingredienteBuscado: String = "",
+        faltanCarbos: Float = 1000f,
+        faltaProtes: Float = 0f,
+        faltanGrasas: Float = 1000f
+    ) {
+        viewModelScope.launch {
+            cargando = true
+            mensajeError = null
+            try {
+                // Llamamos al endpoint de Spooncular
+                val respuesta = RetrofitClient.apiNutricion.obtenerRecomendaciones(
+                    tipoDieta = dieta,
+                    ingredientes = ingredienteBuscado,
+                    maxCarbohidratos = faltanCarbos,
+                    minProteina = faltaProtes,
+                    maxGrasa = faltanGrasas
+                )
+                // Actualizamos la lista de la pantalla con las 5 recetas nuevas
+                listaComidas = respuesta
+            } catch (e: Exception) {
+                mensajeError = "Error al buscar recetas: ${e.message}"
+            } finally {
+                cargando = false
+            }
+        }
+    }
 }

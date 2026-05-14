@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
                     if (usuarioGlobal != null) {
                         // CAMBIO AQUÍ: Reemplazamos MainScreen() temporalmente
                         // para probar el módulo de nutrición directamente.
-                        NutricionScreen()
+                        MainScreen()
                     } else {
                         if (enPantallaRegistro) {
                             RegistroScreen(

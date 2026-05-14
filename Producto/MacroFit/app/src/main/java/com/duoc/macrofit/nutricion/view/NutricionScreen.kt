@@ -4,11 +4,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.duoc.macrofit.nutricion.model.ComidaRecomendada
@@ -16,6 +22,11 @@ import com.duoc.macrofit.nutricion.viewmodel.NutricionViewModel
 
 @Composable
 fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
+
+    // Variables para controlar lo que el usuario escribe y el teclado
+    var textoBusqueda by remember { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -29,10 +40,41 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Selecciona un tipo de alimentación para ver recomendaciones.",
+            text = "¿Qué ingredientes tienes hoy?",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Barra de Búsqueda Inteligente
+        OutlinedTextField(
+            value = textoBusqueda,
+            onValueChange = { textoBusqueda = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Ej: pollo, arroz, tomate...") },
+            leadingIcon = {
+                Icon(Icons.Default.Search, contentDescription = "Buscar ingrediente", tint = MaterialTheme.colorScheme.primary)
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    val dietaActual = viewModel.dietaSeleccionada?.nombre_tipo ?: ""
+
+                    viewModel.buscarRecomendacionesInteligentes(
+                        dieta = dietaActual,
+                        ingredienteBuscado = textoBusqueda
+                    )
+                    keyboardController?.hide()
+                }
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            ),
+            shape = MaterialTheme.shapes.medium,
+            singleLine = true
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
 
         // Selector de Dietas (Horizontal)
@@ -44,7 +86,14 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
                     val seleccionado = viewModel.dietaSeleccionada == dieta
                     FilterChip(
                         selected = seleccionado,
-                        onClick = { viewModel.seleccionarDietaYBuscarComidas(dieta) },
+                        onClick = {
+                            viewModel.seleccionarDietaYBuscarComidas(dieta)
+
+                            viewModel.buscarRecomendacionesInteligentes(
+                                dieta = dieta.nombre_tipo,
+                                ingredienteBuscado = textoBusqueda
+                            )
+                        },
                         label = { Text(dieta.nombre_tipo) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primary,
@@ -67,7 +116,7 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
         }
 
         // Lista de Comidas (Vertical)
-        if (viewModel.cargando && viewModel.dietaSeleccionada != null) {
+        if (viewModel.cargando) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
@@ -77,17 +126,18 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
                     TarjetaComida(comida)
                 }
             }
-        } else if (viewModel.dietaSeleccionada != null) {
-            // Mensaje por si la dieta seleccionada aún no tiene platos en la base de datos
+        } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = "Aún no hay platos registrados para esta categoría.",
+                    text = "Busca un ingrediente o selecciona una categoría.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
     }
 }
+
+// (Tu función TarjetaComida y EtiquetaMacro se mantienen exactamente iguales abajo de esto)
 
 // Componente visual para cada plato
 @Composable
@@ -106,7 +156,7 @@ fun TarjetaComida(comida: ComidaRecomendada) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = comida.descripcion_comida,
+                text = comida.descripcion_comida ?: "Receta recomendada según tus requerimientos.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
