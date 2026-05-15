@@ -8,5 +8,9 @@ data class ComidaRecomendada(
     val proteina_porcion: Float,
     val carbohidratos_porcion: Float,
     val grasa_porcion: Float,
-    val tipo_alimentacion: TipoAlimentacion? = null
+    val tipo_alimentacion: TipoAlimentacion? = null,
+    val foto_comida: String? = null,
+    val ingredientes_lista: List<String>? = emptyList(),
+    val preparacion_lista: List<String>? = emptyList(),
+    val cantidad_porcion: String?
 )

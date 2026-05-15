@@ -1,22 +1,30 @@
 package com.duoc.macrofit.nutricion.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.duoc.macrofit.nutricion.model.ComidaRecomendada
 import com.duoc.macrofit.nutricion.viewmodel.NutricionViewModel
 
@@ -26,6 +34,9 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
     // Variables para controlar lo que el usuario escribe y el teclado
     var textoBusqueda by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Variable para controlar qué receta se muestra en el Popup
+    var recetaSeleccionada by remember { mutableStateOf<ComidaRecomendada?>(null) }
 
     Column(
         modifier = Modifier
@@ -77,7 +88,7 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Selector de Dietas (Horizontal)
+        // Selector de Dietas
         if (viewModel.cargando && viewModel.listaTiposDieta.isEmpty()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
@@ -115,7 +126,7 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
             )
         }
 
-        // Lista de Comidas (Vertical)
+        // Lista de Comidas
         if (viewModel.cargando) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -123,7 +134,10 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
         } else if (viewModel.listaComidas.isNotEmpty()) {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(viewModel.listaComidas) { comida ->
-                    TarjetaComida(comida)
+                    TarjetaComida(
+                        comida = comida,
+                        alHacerClick = { recetaSeleccionada = comida }
+                    )
                 }
             }
         } else {
@@ -135,15 +149,22 @@ fun NutricionScreen(viewModel: NutricionViewModel = viewModel()) {
             }
         }
     }
+
+    recetaSeleccionada?.let { comidaSeleccionada ->
+        PopupReceta(
+            comida = comidaSeleccionada,
+            alCerrar = { recetaSeleccionada = null }
+        )
+    }
 }
 
-// (Tu función TarjetaComida y EtiquetaMacro se mantienen exactamente iguales abajo de esto)
-
-// Componente visual para cada plato
+// Tarjeta para cada plato
 @Composable
-fun TarjetaComida(comida: ComidaRecomendada) {
+fun TarjetaComida(comida: ComidaRecomendada, alHacerClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { alHacerClick() },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -176,7 +197,7 @@ fun TarjetaComida(comida: ComidaRecomendada) {
     }
 }
 
-// Badge para los números
+// Badge para los números de macros
 @Composable
 fun EtiquetaMacro(titulo: String, valor: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -191,5 +212,103 @@ fun EtiquetaMacro(titulo: String, valor: String) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
+    }
+}
+
+//Pop-up de la receta detallada
+@Composable
+fun PopupReceta(comida: ComidaRecomendada, alCerrar: () -> Unit) {
+    Dialog(
+        onDismissRequest = { alCerrar() },
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .fillMaxHeight(0.85f),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.background,
+            tonalElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Imagen de la comida (Usando Coil)
+                if (!comida.foto_comida.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = comida.foto_comida,
+                        contentDescription = comida.nombre_comida,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(MaterialTheme.shapes.medium),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // Título y Gramaje
+                Text(
+                    text = comida.nombre_comida,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = "Porción: ${comida.cantidad_porcion}",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+                // Ingredientes
+                Text(
+                    text = "Ingredientes",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                comida.ingredientes_lista?.forEach { ingrediente ->
+                    Text(
+                        text = "• $ingrediente",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(vertical = 2.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Preparación
+                Text(
+                    text = "Preparación",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                comida.preparacion_lista?.forEachIndexed { index, paso ->
+                    Text(
+                        text = "${index + 1}. $paso",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Botón para Cerrar el Pop-up
+                Button(
+                    onClick = { alCerrar() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Volver")
+                }
+            }
+        }
     }
 }

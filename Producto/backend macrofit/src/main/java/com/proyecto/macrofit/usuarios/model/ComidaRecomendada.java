@@ -2,44 +2,52 @@ package com.proyecto.macrofit.usuarios.model;
 
 import jakarta.persistence.*;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
+
+import java.util.List;
+
 @Entity
-@Table(name = "Comida_Recomendada")
 public class ComidaRecomendada {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_comida")
     private Integer id_comida;
 
-    @Column(name = "nombre_comida")
     private String nombre_comida;
-
-    @Column(name = "descripcion_comida")
     private String descripcion_comida;
+    private String cantidad_porcion = "100g";
 
-    @Column(name = "calorias_porcion")
     private Float calorias_porcion;
-
-    @Column(name = "proteina_porcion")
     private Float proteina_porcion;
-
-    @Column(name = "carbohidratos_porcion")
     private Float carbohidratos_porcion;
-
-    @Column(name = "grasa_porcion")
     private Float grasa_porcion;
 
-    // Relación con la tabla Tipo_Alimentacion
     @ManyToOne
     @JoinColumn(name = "id_tipo_alimentacion")
     private TipoAlimentacion tipo_alimentacion;
 
-    // Constructor vacío
+    // --- CAMPOS PARA EL POP-UP DE LA APP (NO SE GUARDAN EN BD) ---
+    @Transient
+    private String foto_comida;
+
+    @Transient
+    private List<String> ingredientes_lista;
+
+    @Transient
+    private List<String> preparacion_lista;
+
     public ComidaRecomendada() {
     }
 
-    public ComidaRecomendada(String nombre_comida, String descripcion_comida, Float calorias_porcion,
-            Float proteina_porcion, Float carbohidratos_porcion, Float grasa_porcion,
+    public ComidaRecomendada(String nombre_comida, String descripcion_comida,
+            float calorias_porcion, float proteina_porcion,
+            float carbohidratos_porcion, float grasa_porcion,
             TipoAlimentacion tipo_alimentacion) {
         this.nombre_comida = nombre_comida;
         this.descripcion_comida = descripcion_comida;
@@ -48,6 +56,7 @@ public class ComidaRecomendada {
         this.carbohidratos_porcion = carbohidratos_porcion;
         this.grasa_porcion = grasa_porcion;
         this.tipo_alimentacion = tipo_alimentacion;
+        this.cantidad_porcion = "100g";
     }
 
     public Integer getId_comida() {
@@ -72,6 +81,14 @@ public class ComidaRecomendada {
 
     public void setDescripcion_comida(String descripcion_comida) {
         this.descripcion_comida = descripcion_comida;
+    }
+
+    public String getCantidad_porcion() {
+        return cantidad_porcion;
+    }
+
+    public void setCantidad_porcion(String cantidad_porcion) {
+        this.cantidad_porcion = cantidad_porcion;
     }
 
     public Float getCalorias_porcion() {
@@ -112,5 +129,29 @@ public class ComidaRecomendada {
 
     public void setTipo_alimentacion(TipoAlimentacion tipo_alimentacion) {
         this.tipo_alimentacion = tipo_alimentacion;
+    }
+
+    public String getFoto_comida() {
+        return foto_comida;
+    }
+
+    public void setFoto_comida(String foto_comida) {
+        this.foto_comida = foto_comida;
+    }
+
+    public List<String> getIngredientes_lista() {
+        return ingredientes_lista;
+    }
+
+    public void setIngredientes_lista(List<String> ingredientes_lista) {
+        this.ingredientes_lista = ingredientes_lista;
+    }
+
+    public List<String> getPreparacion_lista() {
+        return preparacion_lista;
+    }
+
+    public void setPreparacion_lista(List<String> preparacion_lista) {
+        this.preparacion_lista = preparacion_lista;
     }
 }
