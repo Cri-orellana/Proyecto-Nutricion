@@ -20,67 +20,73 @@ fun LoginScreen(
         onLoginSuccess()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Bienvenido a Macrofit",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
+    MacroFitFondoUniversal {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            MacroFitHeaderLogo()
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedTextField(
-            value = viewModel.correo,
-            onValueChange = { viewModel.correo = it },
-            label = { Text("Correo Electrónico") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = viewModel.contrasena,
-            onValueChange = { viewModel.contrasena = it },
-            label = { Text("Contraseña") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Mensaje de Error (solo aparece si hay un error en el ViewModel)
-        viewModel.errorMessage?.let { error ->
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
             Spacer(modifier = Modifier.height(16.dp))
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        TextButton(onClick = { onNavigateToRegistro() }) {
-            Text("¿No tienes cuenta? Regístrate", color = MaterialTheme.colorScheme.primary)
-        }
+            Text(
+                text = "Bienvenido a Macrofit",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
 
-        if (viewModel.isLoading) {
-            CircularProgressIndicator()
-        } else {
-            Button(
-                onClick = { viewModel.login() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text("Ingresar")
+            Spacer(modifier = Modifier.height(32.dp))
+
+            OutlinedTextField(
+                value = viewModel.correo,
+                onValueChange = { viewModel.correo = it },
+                label = { Text("Correo Electrónico") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = viewModel.contrasena,
+                onValueChange = { viewModel.contrasena = it },
+                label = { Text("Contraseña") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Mensaje de Error (solo aparece si hay un error en el ViewModel)
+            viewModel.errorMessage?.let { error ->
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            TextButton(onClick = { onNavigateToRegistro() }) {
+                Text("¿No tienes cuenta? Regístrate", color = MaterialTheme.colorScheme.primary)
+            }
+
+            if (viewModel.isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Button(
+                    onClick = { viewModel.login() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Text("Ingresar")
+                }
             }
         }
     }

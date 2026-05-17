@@ -20,6 +20,7 @@ public class UsuarioEntity {
     private String contrasena;
     private String rol;
     private String nom_usuario;
+    private Integer edad;
     private float peso;
     private Integer altura;
     private float tmb_objetivo;
@@ -80,6 +81,14 @@ public class UsuarioEntity {
 
     public void setNom_usuario(String nom_usuario) {
         this.nom_usuario = nom_usuario;
+    }
+
+    public Integer getEdad() {
+        return edad;
+    }
+
+    public void setEdad(Integer edad) {
+        this.edad = edad;
     }
 
     public float getPeso() {

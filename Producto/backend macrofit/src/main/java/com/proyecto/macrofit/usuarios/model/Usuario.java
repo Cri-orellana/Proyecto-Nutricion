@@ -8,11 +8,11 @@ public class Usuario {
     private String contrasena;
     private String rol;
     private String nom_usuario;
+    private Integer edad;
     private float peso;
     private Integer altura;
     private float tmb_objetivo;
     private float cal_diaria;
-
 
     public Integer getId_usuario() {
         return id_usuario;
@@ -68,6 +68,14 @@ public class Usuario {
 
     public void setNom_usuario(String nom_usuario) {
         this.nom_usuario = nom_usuario;
+    }
+
+    public Integer getEdad() {
+        return edad;
+    }
+
+    public void setEdad(Integer edad) {
+        this.edad = edad;
     }
 
     public float getPeso() {

@@ -20,6 +20,7 @@ class RegistroViewModel : ViewModel() {
     var nombre by mutableStateOf("")
     var correo by mutableStateOf("")
     var contrasena by mutableStateOf("")
+    var edad by mutableStateOf("")
     var peso by mutableStateOf("")
     var altura by mutableStateOf("")
 
@@ -54,7 +55,7 @@ class RegistroViewModel : ViewModel() {
         errorMessage = null
         when (pasoActual) {
             1 -> if (nombre.isBlank() || correo.isBlank() || contrasena.isBlank()) errorMessage = "Completa tus datos" else pasoActual++
-            2 -> if (peso.isBlank() || altura.isBlank()) errorMessage = "Ingresa tu peso y altura" else pasoActual++
+            2 -> if (edad.isBlank() || peso.isBlank() || altura.isBlank()) errorMessage = "Ingresa tu edad, peso y altura" else pasoActual++ // <-- VALIDACIÓN ACTUALIZADA
             3 -> if (objetivoSeleccionado == null) errorMessage = "Selecciona un objetivo" else pasoActual++
             4 -> if (actividadSeleccionada == null) errorMessage = "Selecciona tu nivel de actividad" else registrar()
         }
@@ -75,8 +76,9 @@ class RegistroViewModel : ViewModel() {
                     nom_usuario = nombre,
                     correo = correo,
                     contrasena = contrasena,
+                    edad = edad.toIntOrNull() ?: 0,
                     peso = peso.toFloatOrNull() ?: 0f,
-                    altura = altura.toFloatOrNull() ?: 0f,
+                    altura = altura.toIntOrNull() ?: 0,
                     id_objetivo = objetivoSeleccionado!!.id_objetivo,
                     id_nv_actividad = actividadSeleccionada!!.id_nv_actividad
                 )

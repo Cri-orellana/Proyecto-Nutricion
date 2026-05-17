@@ -34,7 +34,12 @@ public class UsuarioService {
     public Usuario crearUsuario(Usuario usuario) {
         if (usuario.getRol() == null)
             usuario.setRol("USER");
-        UsuarioEntity entidadGuardada = repositorioUsuario.save(convertirAEntidad(usuario));
+
+        UsuarioEntity entidadNueva = convertirAEntidad(usuario);
+
+        calcularRequerimientos(entidadNueva);
+
+        UsuarioEntity entidadGuardada = repositorioUsuario.save(entidadNueva);
         return convertirAUsuario(entidadGuardada);
     }
 
@@ -51,7 +56,7 @@ public class UsuarioService {
         return null;
     }
 
-    // Actualizar perfill completo
+    // Actualizar perfil parcial
     public Usuario actualizarPerfil(Integer id, Usuario datosActualizados) {
         return repositorioUsuario.findById(id).map(entidad -> {
 
@@ -60,6 +65,8 @@ public class UsuarioService {
                 entidad.setNom_usuario(datosActualizados.getNom_usuario());
             if (datosActualizados.getCorreo() != null)
                 entidad.setCorreo(datosActualizados.getCorreo());
+            if (datosActualizados.getEdad() != null) // NUEVO CAMPO
+                entidad.setEdad(datosActualizados.getEdad());
             if (datosActualizados.getPeso() > 0)
                 entidad.setPeso(datosActualizados.getPeso());
             if (datosActualizados.getAltura() != null)
@@ -80,8 +87,12 @@ public class UsuarioService {
         if (entidad.getPeso() <= 0 || entidad.getAltura() == null)
             return;
 
-        // 1. TMB Base
+        // 1. TMB Base (Agregamos la edad a la fórmula si existe)
         float tmbBase = (10f * entidad.getPeso()) + (6.25f * entidad.getAltura());
+        if (entidad.getEdad() != null && entidad.getEdad() > 0) {
+            tmbBase = tmbBase - (5f * entidad.getEdad()) + 5f;
+        }
+
         entidad.setTmb_objetivo(tmbBase);
 
         // Factor de Actividad
@@ -128,6 +139,7 @@ public class UsuarioService {
             entidadExistente.setNom_usuario(usuarioActualizado.getNom_usuario());
             entidadExistente.setCorreo(usuarioActualizado.getCorreo());
             entidadExistente.setContrasena(usuarioActualizado.getContrasena());
+            entidadExistente.setEdad(usuarioActualizado.getEdad()); // NUEVO CAMPO
             entidadExistente.setPeso(usuarioActualizado.getPeso());
             entidadExistente.setAltura(usuarioActualizado.getAltura());
             entidadExistente.setId_objetivo(usuarioActualizado.getId_objetivo());
@@ -160,6 +172,7 @@ public class UsuarioService {
         usuario.setCorreo(entidad.getCorreo());
         usuario.setContrasena(entidad.getContrasena());
         usuario.setRol(entidad.getRol());
+        usuario.setEdad(entidad.getEdad());
         usuario.setAltura(entidad.getAltura());
         usuario.setPeso(entidad.getPeso());
         usuario.setId_objetivo(entidad.getId_objetivo());
@@ -178,6 +191,7 @@ public class UsuarioService {
         entidad.setCorreo(usuario.getCorreo());
         entidad.setContrasena(usuario.getContrasena());
         entidad.setRol(usuario.getRol());
+        entidad.setEdad(usuario.getEdad());
         entidad.setAltura(usuario.getAltura());
         entidad.setPeso(usuario.getPeso());
         entidad.setId_objetivo(usuario.getId_objetivo());

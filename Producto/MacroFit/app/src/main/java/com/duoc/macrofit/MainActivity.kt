@@ -32,8 +32,6 @@ class MainActivity : ComponentActivity() {
                     var enPantallaRegistro by remember { mutableStateOf(false) }
 
                     if (usuarioGlobal != null) {
-                        // CAMBIO AQUÍ: Reemplazamos MainScreen() temporalmente
-                        // para probar el módulo de nutrición directamente.
                         MainScreen()
                     } else {
                         if (enPantallaRegistro) {

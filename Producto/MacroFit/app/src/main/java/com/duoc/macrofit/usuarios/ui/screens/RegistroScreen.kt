@@ -32,64 +32,69 @@ fun RegistroScreen(
         LaunchedEffect(Unit) { onRegistroExitoso() }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+    MacroFitFondoUniversal {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
         ) {
-            IconButton(onClick = {
-                if (viewModel.pasoActual > 1) viewModel.retrocederPaso() else onVolverAlLogin()
-            }) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Atrás", tint = MaterialTheme.colorScheme.onBackground)
-            }
-            LinearProgressIndicator(
-                progress = viewModel.pasoActual / 4f,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text("${viewModel.pasoActual}/4", color = MaterialTheme.colorScheme.onBackground)
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Box(modifier = Modifier.weight(1f)) {
-            when (viewModel.pasoActual) {
-                1 -> PasoCuenta(viewModel)
-                2 -> PasoFisico(viewModel)
-                3 -> PasoObjetivo(viewModel)
-                4 -> PasoActividad(viewModel)
-            }
-        }
-
-        viewModel.errorMessage?.let { error ->
-            Text(text = error, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 8.dp))
-        }
-
-        if (viewModel.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else {
-            Button(
-                onClick = { viewModel.avanzarPaso() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(55.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = if (viewModel.pasoActual == 4) "Finalizar Registro" else "Siguiente",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.titleMedium
+                IconButton(onClick = {
+                    if (viewModel.pasoActual > 1) viewModel.retrocederPaso() else onVolverAlLogin()
+                }) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Atrás", tint = MaterialTheme.colorScheme.onBackground)
+                }
+                LinearProgressIndicator(
+                    progress = viewModel.pasoActual / 4f,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.primary
                 )
+                Text("${viewModel.pasoActual}/4", color = MaterialTheme.colorScheme.onBackground)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            MacroFitHeaderLogo()
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(modifier = Modifier.weight(1f)) {
+                when (viewModel.pasoActual) {
+                    1 -> PasoCuenta(viewModel)
+                    2 -> PasoFisico(viewModel)
+                    3 -> PasoObjetivo(viewModel)
+                    4 -> PasoActividad(viewModel)
+                }
+            }
+
+            viewModel.errorMessage?.let { error ->
+                Text(text = error, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 8.dp))
+            }
+
+            if (viewModel.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else {
+                Button(
+                    onClick = { viewModel.avanzarPaso() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(55.dp)
+                ) {
+                    Text(
+                        text = if (viewModel.pasoActual == 4) "Finalizar Registro" else "Siguiente",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun PasoCuenta(viewModel: RegistroViewModel) {
@@ -125,11 +130,19 @@ fun PasoFisico(viewModel: RegistroViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
-            value = viewModel.peso, onValueChange = { viewModel.peso = it },
-            label = { Text("Peso en KG (ej: 75.5)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            value = viewModel.edad, onValueChange = { viewModel.edad = it },
+            label = { Text("Edad (ej: 28)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = viewModel.peso, onValueChange = { viewModel.peso = it },
+            label = { Text("Peso en KG (ej: 75.5)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true, modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         OutlinedTextField(
             value = viewModel.altura, onValueChange = { viewModel.altura = it },
             label = { Text("Altura en CM (ej: 175)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -150,17 +163,11 @@ fun PasoObjetivo(viewModel: RegistroViewModel) {
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(viewModel.listaObjetivos) { objetivo ->
-
-                // CORRECCIÓN: Comparamos objeto con objeto
                 val seleccionado = viewModel.objetivoSeleccionado == objetivo
-
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-                            // CORRECCIÓN: Guardamos el objeto completo
-                            viewModel.objetivoSeleccionado = objetivo
-                        },
+                        .clickable { viewModel.objetivoSeleccionado = objetivo },
                     colors = CardDefaults.cardColors(
                         containerColor = if (seleccionado)
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
@@ -191,17 +198,11 @@ fun PasoActividad(viewModel: RegistroViewModel) {
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(viewModel.listaActividades) { actividad ->
-
-                // CORRECCIÓN: Comparamos objeto con objeto
                 val seleccionado = viewModel.actividadSeleccionada == actividad
-
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-                            // CORRECCIÓN: Guardamos el objeto completo
-                            viewModel.actividadSeleccionada = actividad
-                        },
+                        .clickable { viewModel.actividadSeleccionada = actividad },
                     colors = CardDefaults.cardColors(
                         containerColor = if (seleccionado) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface
                     ),

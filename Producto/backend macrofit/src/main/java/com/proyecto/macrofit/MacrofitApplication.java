@@ -11,7 +11,8 @@ import java.net.ServerSocket;
 public class MacrofitApplication {
 
 	public static void main(String[] args) {
-		// Iniciar el túnel SSH antes de arrancar Spring Boot (Revisar que puerto se esta usando)
+		// Iniciar el túnel SSH antes de arrancar Spring Boot (Revisar que puerto se
+		// esta usando)
 		if (isPortAvailable(3399)) {
 			try {
 				// Capturar variables del sistema
